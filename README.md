@@ -13,7 +13,7 @@ Event-sourced restaurant order flow (CQRS) built with Axon Framework and Spring 
 ## Quick start
 
 ```bash
-make docker-up
+make up
 ```
 
 Open [http://localhost:8024](http://localhost:8024), choose **Start standalone node**, then **Complete**.
@@ -36,8 +36,8 @@ Every 15 seconds the locked scheduler places a random order. Inspect commands an
 | `make test-e2e` | Spring e2e (happy/fail + timeout; timeout ~20s+) |
 | `make verify` | Same as `make test` |
 | `make run` | `mvn spring-boot:run` |
-| `make docker-up` | Start Axon Server |
-| `make docker-down` | Stop Compose services |
+| `make up` | Start Axon Server |
+| `make down` | Stop Compose services |
 | `make clean` | `mvn clean` |
 | `make package` | `mvn -DskipTests package` |
 

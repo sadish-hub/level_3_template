@@ -6,12 +6,12 @@
 
 ## Getting Started
 
-Prefer the root [`README.md`](../README.md) and `make` targets for day-to-day commands (`make docker-up`, `make run`, `make test`, etc.).
+Prefer the root [`README.md`](../README.md) and `make` targets for day-to-day commands (`make up`, `make run`, `make test`, etc.).
 
 Run docker-compose to start Axon Server:
 
 ```bash
-make docker-up
+make up
 # or: docker-compose up -d
 ```
 

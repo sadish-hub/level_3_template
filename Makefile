@@ -1,4 +1,4 @@
-.PHONY: help test test-unit test-e2e verify run docker-up docker-down clean package
+.PHONY: help test test-unit test-e2e verify run up down clean package
 
 help:
 	@echo "Targets:"
@@ -8,8 +8,8 @@ help:
 	@echo "  test-e2e     Run Spring e2e tests (includes ~20s+ timeout test)"
 	@echo "  verify       Alias for test"
 	@echo "  run          Start the Spring Boot application"
-	@echo "  docker-up    Start Axon Server via Docker Compose"
-	@echo "  docker-down  Stop Docker Compose services"
+	@echo "  up           Start Axon Server via Docker Compose"
+	@echo "  down         Stop Docker Compose services"
 	@echo "  clean        Maven clean"
 	@echo "  package      Maven package (skip tests)"
 
@@ -27,10 +27,10 @@ verify: test
 run:
 	mvn spring-boot:run
 
-docker-up:
+up:
 	docker compose up -d
 
-docker-down:
+down:
 	docker compose down
 
 clean:

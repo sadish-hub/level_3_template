@@ -86,13 +86,13 @@ Create [`FoodOrderTimeoutE2ETest.java`](../../src/test/java/com/nexusgroup/resta
 
 ### Task 4: Makefile
 
-Root `Makefile` targets: `help` (default), `test`, `test-unit`, `test-e2e`, `verify`, `run`, `docker-up`, `docker-down`, `clean`, `package`. Use `.PHONY` for all; recipes use `mvn`.
+Root `Makefile` targets: `help` (default), `test`, `test-unit`, `test-e2e`, `verify`, `run`, `up`, `down`, `clean`, `package`. Use `.PHONY` for all; recipes use `mvn`.
 
 ---
 
 ### Task 5: README.md
 
-Root `README.md`: what this is, stack, quick start (`make docker-up` → Axon UI → `make run`), Make targets table, docs map, locked surfaces pointer, testing notes (timeout e2e ~20s+). Pointer in [`docs/REQUIREMENTS.md`](../REQUIREMENTS.md) Getting Started.
+Root `README.md`: what this is, stack, quick start (`make up` → Axon UI → `make run`), Make targets table, docs map, locked surfaces pointer, testing notes (timeout e2e ~20s+). Pointer in [`docs/REQUIREMENTS.md`](../REQUIREMENTS.md) Getting Started.
 
 ---
 
