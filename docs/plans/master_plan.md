@@ -19,7 +19,7 @@ It is **not** a full per-phase implementation plan. Detailed “how to build thi
 | 2 | [`docs/plans/phase-2-kitchen-service.md`](phase-2-kitchen-service.md) |
 | 3 | [`docs/plans/phase-3-food-order-saga.md`](phase-3-food-order-saga.md) |
 | 4 | [`docs/plans/phase-4-wiring-e2e.md`](phase-4-wiring-e2e.md) |
-| 5 | `docs/plans/phase-5-hardening.md` (optional, later) |
+| 5 | [`docs/plans/phase-5-hardening.md`](phase-5-hardening.md) |
 
 **Authoritative sources (always prefer these over this plan if they diverge):**
 
@@ -393,6 +393,8 @@ Phases 1–3 unit-complete and green.
 
 ## 10. Phase 5 — Hardening (optional)
 
+**Detailed plan:** [`phase-5-hardening.md`](phase-5-hardening.md)
+
 ### Goal / why
 
 After core acceptance, optionally strengthen resilience and clarity: duplicate/out-of-order handling, timeout e2e if deferred, logging consistency, checklist/docs polish. **Skip if Phase 4 already meets the bar** in `AGENTS.md` / checklist.
@@ -433,9 +435,9 @@ Duplicate commands, out-of-order kitchen vs deadline races, double-cancel attemp
 
 ### Exit criteria / definition of done
 
-- [ ] No open **required** checklist items for Level 3 flow
-- [ ] Optional items either done or explicitly marked deferred/out of scope in docs
-- [ ] `./mvnw test` green
+- [x] No open **required** checklist items for Level 3 flow
+- [x] Optional items either done or explicitly marked deferred/out of scope in docs (timeout e2e + late `@EndSaga` events done; logging polish skipped/YAGNI)
+- [x] `mvn test` / `make test` green
 
 ---
 

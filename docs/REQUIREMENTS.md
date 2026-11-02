@@ -6,10 +6,13 @@
 
 ## Getting Started
 
+Prefer the root [`README.md`](../README.md) and `make` targets for day-to-day commands (`make docker-up`, `make run`, `make test`, etc.).
+
 Run docker-compose to start Axon Server:
 
 ```bash
-docker-compose up -d
+make docker-up
+# or: docker-compose up -d
 ```
 
 Navigate to [http://localhost:8024](http://localhost:8024) and select `Start standalone node` in the dropdown.
@@ -18,7 +21,8 @@ Click on the `Complete` button.
 Now, you can run the application using Maven:
 
 ```bash
-mvn spring-boot:run
+make run
+# or: mvn spring-boot:run
 ```
 
 Alternatively, you can run the application from your IDE by running the `RestaurantApplication` class.
@@ -60,4 +64,6 @@ Add tests that you find valuable (see `AGENTS.md`: unit tests for aggregate/saga
 
 **Saga cooking deadline (Phase 3):** `FoodOrderSaga` schedules Axon deadline `"cooking-timeout"` for **15 seconds** on `FoodOrderCreatedEvent`. Timeout cancel reason is `"Cooking timed out"`. Kitchen-failure cancel propagates `CookingDishFailedEvent.reason()` unchanged onto `CancelFoodOrderCommand`.
 
-**E2E / wiring (Phase 4):** Spring Boot `@SpringBootTest` under profile `test` uses `axon.axonserver.enabled=false`, an in-memory `EventStorageEngine` / `EmbeddedEventStore`, disabled Docker Compose and scheduling, and `mockStatic(KitchenClient)` for deterministic kitchen outcomes. Happy path: create → cook success → complete. Failure path: create → cook fail → cancel with reason. Timeout/deadline path in e2e is deferred to Phase 5 (covered by saga unit tests).
+**E2E / wiring (Phase 4):** Spring Boot `@SpringBootTest` under profile `test` uses `axon.axonserver.enabled=false`, an in-memory `EventStorageEngine` / `EmbeddedEventStore`, disabled Docker Compose and scheduling, and `mockStatic(KitchenClient)` for deterministic kitchen outcomes. Happy path: create → cook success → complete. Failure path: create → cook fail → cancel with reason.
+
+**Hardening (Phase 5):** Timeout e2e (`FoodOrderTimeoutE2ETest`) enables JobRunr background job server for that class only; cook is blocked ~20s while `"cooking-timeout"` fires; cancel reason `"Cooking timed out"`. Late kitchen events after `@EndSaga` are covered by saga unit fixtures (no further commands). Root `Makefile` / `README.md` document common commands.

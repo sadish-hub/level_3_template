@@ -58,4 +58,22 @@ class FoodOrderSagaTest {
                         new CancelFoodOrderCommand("order-3", "Cooking timed out"))
                 .expectActiveSagas(0);
     }
+
+    @Test
+    void afterCompleted_lateCookingFailed_dispatchesNoCommands() {
+        fixture.givenAPublished(new FoodOrderCreatedEvent("order-4", Dish.CHICKEN))
+                .andThenAPublished(new DishCookedEvent("order-4"))
+                .whenPublishingA(new CookingDishFailedEvent("order-4", "late kitchen failure"))
+                .expectActiveSagas(0)
+                .expectNoDispatchedCommands();
+    }
+
+    @Test
+    void afterCancelled_lateDishCooked_dispatchesNoCommands() {
+        fixture.givenAPublished(new FoodOrderCreatedEvent("order-5", Dish.ICE_CREAM))
+                .andThenAPublished(new CookingDishFailedEvent("order-5", "Simulated kitchen failure"))
+                .whenPublishingA(new DishCookedEvent("order-5"))
+                .expectActiveSagas(0)
+                .expectNoDispatchedCommands();
+    }
 }

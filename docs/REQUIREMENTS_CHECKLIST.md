@@ -98,19 +98,19 @@
 - [x] **TEST-AGGREGATE-CASES** — Meaningful aggregate unit tests for create/complete/cancel (and invalid transitions, cancel reasons). *(Requirements → Level 3; `AGENTS.md`)*
 - [x] **TEST-SAGA-CASES** — Meaningful saga unit tests for created→cook+deadline, cooked→complete, kitchen failure→cancel, and timeout→cancel (`FoodOrderSagaTest`). *(Requirements → Level 3; `AGENTS.md`)*
 - [x] **TEST-KITCHEN-SERVICE** — Unit coverage for cook success vs `KitchenException` → corresponding events (`KitchenServiceTest` with `mockStatic(KitchenClient)`). *(Requirements → “tests that you find valuable”; `AGENTS.md`)*
-- [x] **TEST-E2E** — E2E/integration tests for wired create→cook→complete and create→cook-fail→cancel (deterministic `mockStatic`; in-memory Axon; no Docker). Timeout e2e deferred to Phase 5. *(`AGENTS.md` → Testing expectations)*
-- [x] **TEST-EDGE-CASES** — Explicit coverage of kitchen failure (unit + e2e), deadline/timeout (saga unit), invalid transitions (aggregate unit), and cancel reasons (unit + e2e). *(`AGENTS.md`)*
+- [x] **TEST-E2E** — E2E/integration tests for wired create→cook→complete, create→cook-fail→cancel, and create→cooking-timeout→cancel (`FoodOrderTimeoutE2ETest`; JobRunr BGS; ~20s+). Deterministic kitchen stubs; in-memory Axon; no Docker. *(`AGENTS.md` → Testing expectations)*
+- [x] **TEST-EDGE-CASES** — Explicit coverage of kitchen failure (unit + e2e), deadline/timeout (saga unit + timeout e2e), late events after `@EndSaga` (saga unit), invalid transitions (aggregate unit), and cancel reasons (unit + e2e). *(`AGENTS.md`)*
 
 ---
 
 ## Documentation
 
 - [x] **DOC-AGENTS** — Root [`AGENTS.md`](../AGENTS.md) documents purpose, locked surfaces, coding standards, TDD, testing, and docs hygiene.
-- [x] **DOC-SYNC** — `REQUIREMENTS.md`, this checklist, `AGENTS.md`, and `docs/plans/` reflect Phase 4 e2e wiring and deferred timeout e2e. *(`AGENTS.md` → Documentation hygiene)*
+- [x] **DOC-SYNC** — `REQUIREMENTS.md`, this checklist, `AGENTS.md`, `README.md` / `Makefile`, and `docs/plans/` reflect Phase 5 hardening (timeout e2e, late `@EndSaga` events). *(`AGENTS.md` → Documentation hygiene)*
 
 ---
 
-## Summary counts (as of Phase 4 e2e)
+## Summary counts (as of Phase 5 hardening)
 
 | Status | Count |
 |--------|------:|
@@ -118,4 +118,4 @@
 | Unchecked `[ ]` | 0 |
 | **Total items** | **41** |
 
-Level 3 required checklist items closed. Optional Phase 5: timeout e2e + duplicate/post-`@EndSaga` kitchen outcomes.
+Level 3 required checklist items closed. Phase 5 optional hardening done: timeout e2e + post-`@EndSaga` late kitchen event fixtures + Makefile/README.

@@ -150,8 +150,8 @@ docker-compose up -d
 - **Invalid aggregate transitions (resolved Phase 1):** complete/cancel when not `CREATED` → `IllegalStateException`; no-prior-create → `AggregateNotFoundException`.
 - **Kitchen failure reason (resolved Phase 2):** `CookingDishFailedEvent.reason` = `KitchenException.getMessage()`; kitchen unit tests use `mockStatic(KitchenClient.class)`.
 - **Cooking deadline / cancel reasons (resolved Phase 3):** deadline name `"cooking-timeout"`, duration **15s**; timeout cancel reason `"Cooking timed out"`; kitchen-failure cancel propagates `CookingDishFailedEvent.reason()`.
-- **E2E wiring (resolved Phase 4):** `@SpringBootTest` + profile `test`; `axon.axonserver.enabled=false`; in-memory `EventStorageEngine` (Axon Boot builds `EmbeddedEventStore`); subscribing event processors in tests; `mockStatic(KitchenClient)`; scheduling and Docker Compose off. Timeout e2e deferred to Phase 5.
-- **Duplicate kitchen outcomes / events after `@EndSaga`:** deferred to Phase 5.
-- **Timeout/deadline path in e2e:** deferred to Phase 5 (unit-covered in Phase 3).
+- **E2E wiring (resolved Phase 4):** `@SpringBootTest` + profile `test`; `axon.axonserver.enabled=false`; in-memory `EventStorageEngine` (Axon Boot builds `EmbeddedEventStore`); subscribing event processors in tests; `mockStatic(KitchenClient)`; scheduling and Docker Compose off.
+- **Late kitchen events after `@EndSaga` (resolved Phase 5):** saga unit fixtures prove a late `CookingDishFailedEvent` / `DishCookedEvent` after complete/cancel dispatches no further commands (`expectActiveSagas(0)`); Axon `@EndSaga` — no production guard needed.
+- **Timeout/deadline path in e2e (resolved Phase 5):** `FoodOrderTimeoutE2ETest` enables JobRunr BGS for that class only, uses an async `CommandBus` so the saga lock releases while cook blocks (~20s), awaits cancel reason `"Cooking timed out"` within 25s; `@MockBean` kitchen + scheduler (static kitchen mock is thread-local).
 - No custom REST API or security model is required; do not add them unless requirements change.
 - Live kitchen failure is random; tests must not flaky-assert on that randomness.
