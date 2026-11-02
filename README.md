@@ -41,6 +41,17 @@ Every 15 seconds the locked scheduler places a random order. Inspect commands an
 | `make clean` | `mvn clean` |
 | `make package` | `mvn -DskipTests package` |
 
+## Manual testing
+
+Operator path to exercise the live flow (not `make test`). More setup detail: [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md).
+
+1. **Start Axon Server:** `make up` (Docker Compose).
+2. **Initialize the node:** open [http://localhost:8024](http://localhost:8024) → **Start standalone node** → **Complete**.
+3. **Run the app:** `make run`, or start `RestaurantApplication` from your IDE.
+4. **What happens:** every 15s `FoodOrderScheduler` sends a random `CreateFoodOrderCommand`. The saga dispatches cooking via the kitchen (~1–10s; ~20% random failure). The order then completes or cancels. A **15s** cooking-timeout deadline can also cancel with reason `"Cooking timed out"`.
+5. **Observe:** in the Axon Server UI, inspect commands, events, aggregates, and sagas as available. Expect **Created → Cook → Completed** or **Cancelled** (kitchen failure reason or timeout).
+6. **Stop:** Ctrl+C the app; `make down` for Axon Server.
+
 ## Docs map
 
 | Doc | Purpose |
