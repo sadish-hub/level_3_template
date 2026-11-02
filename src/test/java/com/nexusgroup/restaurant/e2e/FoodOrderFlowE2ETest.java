@@ -12,11 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.nexusgroup.restaurant.aggregate.value.Dish;
 import com.nexusgroup.restaurant.command.CreateFoodOrderCommand;
+import com.nexusgroup.restaurant.scheduler.FoodOrderScheduler;
 import com.nexusgroup.restaurant.service.KitchenClient;
 import com.nexusgroup.restaurant.service.KitchenException;
 
@@ -30,6 +32,13 @@ class FoodOrderFlowE2ETest {
 
     @Autowired
     OrderFlowEventRecorder recorder;
+
+    /**
+     * {@code @EnableScheduling} on the app still registers scheduled methods even
+     * when {@code spring.task.scheduling.enabled=false}; neutralize random orders.
+     */
+    @MockBean
+    FoodOrderScheduler foodOrderScheduler;
 
     @Test
     void createOrder_whenKitchenSucceeds_completesOrder() {

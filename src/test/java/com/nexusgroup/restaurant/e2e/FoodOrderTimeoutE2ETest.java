@@ -62,10 +62,13 @@ class FoodOrderTimeoutE2ETest {
         commandGateway.send(new CreateFoodOrderCommand(orderId, Dish.PANCAKES));
 
         await().atMost(Duration.ofSeconds(25)).untilAsserted(() -> {
+            assertThat(recorder.created()).anyMatch(e -> orderId.equals(e.orderId()));
             assertThat(recorder.cancelled())
                 .anyMatch(e -> orderId.equals(e.orderId())
                     && "Cooking timed out".equals(e.reason()));
             assertThat(recorder.completed()).noneMatch(e -> orderId.equals(e.orderId()));
+            assertThat(recorder.cookingFailed()).noneMatch(e -> orderId.equals(e.orderId()));
+            assertThat(recorder.cooked()).noneMatch(e -> orderId.equals(e.orderId()));
         });
     }
 }

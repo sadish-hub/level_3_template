@@ -56,7 +56,8 @@ class FoodOrderSagaTest {
                 .whenTimeElapses(Duration.ofSeconds(15))
                 .expectDispatchedCommands(
                         new CancelFoodOrderCommand("order-3", "Cooking timed out"))
-                .expectActiveSagas(0);
+                .expectActiveSagas(0)
+                .expectNoScheduledDeadlines();
     }
 
     @Test
