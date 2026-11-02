@@ -4,7 +4,7 @@
 
 **Source:** [`REQUIREMENTS.md`](REQUIREMENTS.md)  
 **Agent agreements:** [`AGENTS.md`](../AGENTS.md) — coding standards, TDD, unit + e2e testing (edge cases), locked surfaces, docs hygiene.  
-**Implementation roadmap:** [`plans/master_plan.md`](plans/master_plan.md) — phased goals, scope, testing focus, and checklist ID mapping. Phase 1 detailed plan: [`plans/phase-1-food-order-aggregate.md`](plans/phase-1-food-order-aggregate.md).  
+**Implementation roadmap:** [`plans/master_plan.md`](plans/master_plan.md) — phased goals, scope, testing focus, and checklist ID mapping. Phase 1: [`plans/phase-1-food-order-aggregate.md`](plans/phase-1-food-order-aggregate.md). Phase 2: [`plans/phase-2-kitchen-service.md`](plans/phase-2-kitchen-service.md).  
 **Supporting cues:** Axon playbook links in Requirements (state transitions, sagas, deadlines, aggregate/saga testing); locked command/event contracts under `command/` and `event/`.  
 **Date context:** 2026-11-02 (workspace audit of template stubs).  
 **Convention:** `[x]` = verified present/working in codebase today; `[ ]` = not implemented or only empty scaffold.
@@ -39,9 +39,9 @@
 
 ## Functional — kitchen / process manager
 
-- [ ] **FUNC-COOK-HANDLER** — `KitchenService` handles `CookDishCommand` (body currently empty). *(Requirements → Level 3; `CookDishCommand`)*
-- [ ] **FUNC-COOK-SUCCESS** — Successful cook publishes `DishCookedEvent` (via `EventGateway` + `KitchenClient.cookDish`). *(Requirements → Level 3; events)*
-- [ ] **FUNC-COOK-FAILURE** — Kitchen failure publishes `CookingDishFailedEvent` with reason (client throws `KitchenException` ~20% of time). *(Requirements → Level 3; `KitchenClient`)*
+- [x] **FUNC-COOK-HANDLER** — `KitchenService` handles `CookDishCommand` (calls `KitchenClient.cookDish`, publishes outcome via `EventGateway`). *(Requirements → Level 3; `CookDishCommand`)*
+- [x] **FUNC-COOK-SUCCESS** — Successful cook publishes `DishCookedEvent` (via `EventGateway` + `KitchenClient.cookDish`). *(Requirements → Level 3; events)*
+- [x] **FUNC-COOK-FAILURE** — Kitchen failure publishes `CookingDishFailedEvent` with reason = `KitchenException.getMessage()`. *(Requirements → Level 3; `KitchenClient`)*
 - [ ] **FUNC-SAGA-START** — Saga reacts to `FoodOrderCreatedEvent` and dispatches `CookDishCommand`. *(Requirements → Level 3; Axon Sagas link)*
 - [ ] **FUNC-SAGA-COMPLETE** — Saga reacts to `DishCookedEvent` and dispatches `CompleteFoodOrderCommand`. *(Requirements → Level 3)*
 - [ ] **FUNC-SAGA-CANCEL-ON-FAIL** — Saga reacts to `CookingDishFailedEvent` and dispatches `CancelFoodOrderCommand`. *(Requirements → Level 3)*
@@ -97,7 +97,7 @@
 - [ ] **TEST-TDD** — Features and bugfixes follow red → green → refactor (failing test before production code). *(`AGENTS.md` → TDD workflow)*
 - [x] **TEST-AGGREGATE-CASES** — Meaningful aggregate unit tests for create/complete/cancel (and invalid transitions, cancel reasons). *(Requirements → Level 3; `AGENTS.md`)*
 - [ ] **TEST-SAGA-CASES** — Meaningful saga unit tests for happy path, kitchen failure, and deadline/timeout path. *(Requirements → Level 3; `AGENTS.md`)*
-- [ ] **TEST-KITCHEN-SERVICE** — Unit coverage for cook success vs `KitchenException` → corresponding events. *(Requirements → “tests that you find valuable”; `AGENTS.md`)*
+- [x] **TEST-KITCHEN-SERVICE** — Unit coverage for cook success vs `KitchenException` → corresponding events (`KitchenServiceTest` with `mockStatic(KitchenClient)`). *(Requirements → “tests that you find valuable”; `AGENTS.md`)*
 - [ ] **TEST-E2E** — E2E/integration tests for wired create→cook→complete and create→cook-fail→cancel (deterministic; not flaky on live ~20% failure). *(`AGENTS.md` → Testing expectations)*
 - [ ] **TEST-EDGE-CASES** — Explicit coverage of kitchen failure, deadline/timeout, invalid transitions, and cancel reasons. *(`AGENTS.md`)*
 
@@ -110,12 +110,12 @@
 
 ---
 
-## Summary counts (as of Phase 1 aggregate)
+## Summary counts (as of Phase 2 kitchen)
 
 | Status | Count |
 |--------|------:|
-| Checked `[x]` | 25 |
-| Unchecked `[ ]` | 16 |
+| Checked `[x]` | 29 |
+| Unchecked `[ ]` | 12 |
 | **Total items** | **41** |
 
-Primary remaining work: implement `FoodOrderSaga` and `KitchenService` via TDD; add e2e scenarios covering the full command/event set and edge cases; keep docs synced.
+Primary remaining work: implement `FoodOrderSaga` via TDD; add e2e scenarios covering the full command/event set and edge cases; keep docs synced.

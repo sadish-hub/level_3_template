@@ -5,6 +5,8 @@ import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Component;
 
 import com.nexusgroup.restaurant.command.CookDishCommand;
+import com.nexusgroup.restaurant.event.CookingDishFailedEvent;
+import com.nexusgroup.restaurant.event.DishCookedEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +18,11 @@ public class KitchenService {
 
     @CommandHandler
     public void handle(CookDishCommand cmd) {
-
+        try {
+            KitchenClient.cookDish(cmd.dish());
+            eventGateway.publish(new DishCookedEvent(cmd.orderId()));
+        } catch (KitchenException ex) {
+            eventGateway.publish(new CookingDishFailedEvent(cmd.orderId(), ex.getMessage()));
+        }
     }
 }

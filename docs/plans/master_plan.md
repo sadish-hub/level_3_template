@@ -16,7 +16,7 @@ It is **not** a full per-phase implementation plan. Detailed “how to build thi
 | Phase | Detailed plan file |
 |------:|--------------------|
 | 1 | [`docs/plans/phase-1-food-order-aggregate.md`](phase-1-food-order-aggregate.md) |
-| 2 | `docs/plans/phase-2-kitchen-cooking-path.md` (later) |
+| 2 | [`docs/plans/phase-2-kitchen-service.md`](phase-2-kitchen-service.md) |
 | 3 | `docs/plans/phase-3-saga-orchestration.md` (later) |
 | 4 | `docs/plans/phase-4-wiring-and-e2e.md` (later) |
 | 5 | `docs/plans/phase-5-hardening.md` (optional, later) |
@@ -188,6 +188,8 @@ None. First implementation phase.
 
 ## 7. Phase 2 — Kitchen cooking path (unit)
 
+**Detailed plan:** [`phase-2-kitchen-service.md`](phase-2-kitchen-service.md)
+
 ### Goal / why
 
 Implement `KitchenService` so `CookDishCommand` calls `KitchenClient.cookDish` and publishes either success or failure events. The saga depends on these outcomes; unit tests must be **deterministic** (mock/stub client behavior — never assert on live ~20% randomness).
@@ -241,11 +243,11 @@ Implement `KitchenService` so `CookDishCommand` calls `KitchenClient.cookDish` a
 
 ### Exit criteria / definition of done
 
-- [ ] `FUNC-COOK-HANDLER` — Handler implemented (not empty)
-- [ ] `FUNC-COOK-SUCCESS` — Success → `DishCookedEvent` via `EventGateway`
-- [ ] `FUNC-COOK-FAILURE` — `KitchenException` → `CookingDishFailedEvent` with reason
-- [ ] `TEST-KITCHEN-SERVICE` — Unit tests for success and failure paths
-- [ ] Tests deterministic; `./mvnw test` green for kitchen + prior phases
+- [x] `FUNC-COOK-HANDLER` — Handler implemented (not empty)
+- [x] `FUNC-COOK-SUCCESS` — Success → `DishCookedEvent` via `EventGateway`
+- [x] `FUNC-COOK-FAILURE` — `KitchenException` → `CookingDishFailedEvent` with reason (`ex.getMessage()`)
+- [x] `TEST-KITCHEN-SERVICE` — Unit tests for success and failure paths (`mockStatic`)
+- [x] Tests deterministic; `mvn test` green for kitchen + prior phases
 
 ---
 

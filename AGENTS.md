@@ -65,7 +65,7 @@ Keep `pom.xml`, Docker Compose, and Axon wiring changes minimal and justified; p
 - Minimal scope: implement only what the current requirement needs. No drive-by refactors, renames, or dependency churn.
 - Event-sourced aggregate: command handlers validate and apply events; state is rebuilt via `@EventSourcingHandler` — do not persist aggregate state outside the event stream.
 - Saga: associate on order id, dispatch commands via `CommandGateway`, use `DeadlineManager` for cooking timeouts / cleanup; keep gateway/deadline fields `transient` as scaffolded.
-- `KitchenService`: handle `CookDishCommand`, call `KitchenClient.cookDish`, publish `DishCookedEvent` or `CookingDishFailedEvent` via `EventGateway` (catch `KitchenException`).
+- `KitchenService`: handle `CookDishCommand`, call `KitchenClient.cookDish`, publish `DishCookedEvent` or `CookingDishFailedEvent` via `EventGateway` (catch `KitchenException`). Failure reason = `KitchenException.getMessage()`.
 - Enforce valid transitions (`OrderState`); reject invalid commands rather than silently no-oping when Axon state-transition guidance applies.
 
 ---
@@ -92,7 +92,7 @@ Use the existing scaffolds and expand them:
 
 - **`FoodOrderAggregateTest`** — create → created; complete / cancel from valid states; **invalid transitions** (e.g. complete/cancel when not allowed); cancel **reason** propagated on `FoodOrderCancelledEvent`.
 - **`FoodOrderSagaTest`** — on created → `CookDishCommand`; on cooked → `CompleteFoodOrderCommand`; on cooking failed → `CancelFoodOrderCommand` with reason; **deadline/timeout** → cancel (or documented cleanup) and saga end.
-- **`KitchenService`** (add tests) — success publishes `DishCookedEvent`; `KitchenException` publishes `CookingDishFailedEvent` with reason.
+- **`KitchenService`** — success publishes `DishCookedEvent`; `KitchenException` publishes `CookingDishFailedEvent` with `getMessage()` reason. Use `Mockito.mockStatic(KitchenClient.class)` for determinism (never live `cookDish`).
 
 Cover edge cases explicitly: kitchen failure (~20% in live client — deterministic in tests), timeout/deadline, illegal state transitions, cancel reasons, duplicate/out-of-order handling as required by the design.
 
@@ -149,5 +149,6 @@ docker-compose up -d
 - Requirements say “add tests that you find valuable”; this file **requires** unit + e2e coverage including edge cases — follow the stricter bar here.
 - Exact cooking **deadline duration** and cancel **reason strings** for timeout vs kitchen failure are not fully specified in Requirements — choose clear, tested values and document them in `docs/` if you introduce them.
 - **Invalid aggregate transitions (resolved Phase 1):** complete/cancel when not `CREATED` → `IllegalStateException`; no-prior-create → `AggregateNotFoundException`.
+- **Kitchen failure reason (resolved Phase 2):** `CookingDishFailedEvent.reason` = `KitchenException.getMessage()`; kitchen unit tests use `mockStatic(KitchenClient.class)`.
 - No custom REST API or security model is required; do not add them unless requirements change.
 - Live kitchen failure is random; tests must not flaky-assert on that randomness.
