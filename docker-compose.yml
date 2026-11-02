@@ -1,0 +1,22 @@
+services:
+  axon-server:
+    image: axoniq/axonserver:latest-jdk-17
+    ports:
+      - "8024:8024"
+      - "8124:8124"
+      - '8224:8224'
+    hostname: axonserver-1
+    volumes:
+      - data:/axonserver/data
+      - events:/axonserver/events
+    networks:
+      - axon-server
+
+networks:
+  axon-server:
+
+volumes:
+  data:
+    driver: local
+  events:
+    driver: local
