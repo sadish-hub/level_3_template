@@ -59,3 +59,5 @@ Add tests that you find valuable (see `AGENTS.md`: unit tests for aggregate/saga
 **Kitchen failure reason (Phase 2):** `KitchenService` publishes `CookingDishFailedEvent.reason` as `KitchenException.getMessage()`. Unit tests stub `KitchenClient.cookDish` with Mockito `mockStatic` — never call the live client (random ~20% failure + cooking sleep).
 
 **Saga cooking deadline (Phase 3):** `FoodOrderSaga` schedules Axon deadline `"cooking-timeout"` for **15 seconds** on `FoodOrderCreatedEvent`. Timeout cancel reason is `"Cooking timed out"`. Kitchen-failure cancel propagates `CookingDishFailedEvent.reason()` unchanged onto `CancelFoodOrderCommand`.
+
+**E2E / wiring (Phase 4):** Spring Boot `@SpringBootTest` under profile `test` uses `axon.axonserver.enabled=false`, an in-memory `EventStorageEngine` / `EmbeddedEventStore`, disabled Docker Compose and scheduling, and `mockStatic(KitchenClient)` for deterministic kitchen outcomes. Happy path: create → cook success → complete. Failure path: create → cook fail → cancel with reason. Timeout/deadline path in e2e is deferred to Phase 5 (covered by saga unit tests).

@@ -1,0 +1,24 @@
+axon:
+  axonserver:
+    enabled: false
+  serializer:
+    general: jackson
+    events: jackson
+  eventhandling:
+    processors:
+      FoodOrderSagaProcessor:
+        mode: subscribing
+      "[com.nexusgroup.restaurant.e2e]":
+        mode: subscribing
+
+spring:
+  docker:
+    compose:
+      enabled: false
+  task:
+    scheduling:
+      enabled: false
+
+jobrunr:
+  background-job-server:
+    enabled: false

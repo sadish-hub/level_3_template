@@ -51,7 +51,7 @@ Do not rename fields, change record shapes, or invent parallel command/event typ
 | Saga / process manager | `saga/FoodOrderSaga` |
 | Kitchen command handler | `service/KitchenService` |
 | Unit tests | `src/test/.../aggregate/FoodOrderAggregateTest`, `.../saga/FoodOrderSagaTest`, kitchen service tests |
-| E2E / integration tests | Add under `src/test/` as needed (none scaffolded yet) |
+| E2E / integration tests | `src/test/.../e2e/` (`FoodOrderFlowE2ETest`, in-memory Axon test config) |
 | Docs | `docs/*`, this `AGENTS.md`, and root `README` if present |
 
 Keep `pom.xml`, Docker Compose, and Axon wiring changes minimal and justified; prefer implementing against the existing stack.
@@ -150,6 +150,8 @@ docker-compose up -d
 - **Invalid aggregate transitions (resolved Phase 1):** complete/cancel when not `CREATED` → `IllegalStateException`; no-prior-create → `AggregateNotFoundException`.
 - **Kitchen failure reason (resolved Phase 2):** `CookingDishFailedEvent.reason` = `KitchenException.getMessage()`; kitchen unit tests use `mockStatic(KitchenClient.class)`.
 - **Cooking deadline / cancel reasons (resolved Phase 3):** deadline name `"cooking-timeout"`, duration **15s**; timeout cancel reason `"Cooking timed out"`; kitchen-failure cancel propagates `CookingDishFailedEvent.reason()`.
+- **E2E wiring (resolved Phase 4):** `@SpringBootTest` + profile `test`; `axon.axonserver.enabled=false`; in-memory `EventStorageEngine` (Axon Boot builds `EmbeddedEventStore`); subscribing event processors in tests; `mockStatic(KitchenClient)`; scheduling and Docker Compose off. Timeout e2e deferred to Phase 5.
 - **Duplicate kitchen outcomes / events after `@EndSaga`:** deferred to Phase 5.
+- **Timeout/deadline path in e2e:** deferred to Phase 5 (unit-covered in Phase 3).
 - No custom REST API or security model is required; do not add them unless requirements change.
 - Live kitchen failure is random; tests must not flaky-assert on that randomness.

@@ -18,7 +18,7 @@ It is **not** a full per-phase implementation plan. Detailed “how to build thi
 | 1 | [`docs/plans/phase-1-food-order-aggregate.md`](phase-1-food-order-aggregate.md) |
 | 2 | [`docs/plans/phase-2-kitchen-service.md`](phase-2-kitchen-service.md) |
 | 3 | [`docs/plans/phase-3-food-order-saga.md`](phase-3-food-order-saga.md) |
-| 4 | `docs/plans/phase-4-wiring-and-e2e.md` (later) |
+| 4 | [`docs/plans/phase-4-wiring-e2e.md`](phase-4-wiring-e2e.md) |
 | 5 | `docs/plans/phase-5-hardening.md` (optional, later) |
 
 **Authoritative sources (always prefer these over this plan if they diverge):**
@@ -326,6 +326,8 @@ Implement `FoodOrderSaga` as the process manager: on order created, start cookin
 
 ## 9. Phase 4 — Wiring & e2e
 
+**Detailed plan:** [`phase-4-wiring-e2e.md`](phase-4-wiring-e2e.md)
+
 ### Goal / why
 
 Prove the **wired** flow under Spring + Axon test support (or equivalent): create → cook success → complete, and create → cook failure → cancel. Catch integration gaps that fixtures miss (bean wiring, serializers, command/event routing).
@@ -380,12 +382,12 @@ Phases 1–3 unit-complete and green.
 
 ### Exit criteria / definition of done
 
-- [ ] `FUNC-ALL-COMMANDS-EVENTS` — Full create/cook/complete/cancel + all five event types exercised in the flow
-- [ ] `TEST-E2E` — Happy and failure integration tests exist and pass
-- [ ] `TEST-EDGE-CASES` — Kitchen failure, deadline (unit and/or e2e), invalid transitions, cancel reasons covered across suite
-- [ ] `TEST-TDD` — Workflow followed for features in this phase
-- [ ] `DOC-SYNC` — Docs/checklist reflect shipped behavior
-- [ ] `./mvnw test` fully green; empty `@Test` stubs eliminated
+- [x] `FUNC-ALL-COMMANDS-EVENTS` — Full create/cook/complete/cancel + all five event types exercised in the flow
+- [x] `TEST-E2E` — Happy and failure integration tests exist and pass
+- [x] `TEST-EDGE-CASES` — Kitchen failure, deadline (unit), invalid transitions, cancel reasons covered across suite
+- [x] `TEST-TDD` — Workflow followed for features in this phase
+- [x] `DOC-SYNC` — Docs/checklist reflect shipped behavior
+- [x] `mvn test` fully green; empty `@Test` stubs eliminated; timeout e2e deferred to Phase 5
 
 ---
 
