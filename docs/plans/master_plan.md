@@ -17,7 +17,7 @@ It is **not** a full per-phase implementation plan. Detailed “how to build thi
 |------:|--------------------|
 | 1 | [`docs/plans/phase-1-food-order-aggregate.md`](phase-1-food-order-aggregate.md) |
 | 2 | [`docs/plans/phase-2-kitchen-service.md`](phase-2-kitchen-service.md) |
-| 3 | `docs/plans/phase-3-saga-orchestration.md` (later) |
+| 3 | [`docs/plans/phase-3-food-order-saga.md`](phase-3-food-order-saga.md) |
 | 4 | `docs/plans/phase-4-wiring-and-e2e.md` (later) |
 | 5 | `docs/plans/phase-5-hardening.md` (optional, later) |
 
@@ -253,6 +253,8 @@ Implement `KitchenService` so `CookDishCommand` calls `KitchenClient.cookDish` a
 
 ## 8. Phase 3 — Saga orchestration (unit)
 
+**Detailed plan:** [`phase-3-food-order-saga.md`](phase-3-food-order-saga.md)
+
 ### Goal / why
 
 Implement `FoodOrderSaga` as the process manager: on order created, start cooking (and a deadline); on kitchen success/failure or timeout, complete or cancel and end the saga. This is the orchestration glue between aggregate and kitchen **without** requiring full Spring Boot yet (`SagaTestFixture`).
@@ -303,7 +305,7 @@ Implement `FoodOrderSaga` as the process manager: on order created, start cookin
 | Kitchen failure cancel reason | **Yes** — propagate or map from event reason |
 | Event after saga already ended | Prefer ignore/safe; cover if design requires |
 | Duplicate kitchen outcomes | Design + test or defer to Phase 5 with note |
-| Exact deadline duration | **Open decision** — pick value > max dish cook (client up to 10s for `CHICKEN`) + buffer; document |
+| Exact deadline duration | **Resolved Phase 3** — `"cooking-timeout"`, 15s; timeout reason `"Cooking timed out"` |
 
 ### Docs to update when phase completes
 
@@ -312,13 +314,13 @@ Implement `FoodOrderSaga` as the process manager: on order created, start cookin
 
 ### Exit criteria / definition of done
 
-- [ ] `FUNC-SAGA-START` — Created → `CookDishCommand`
-- [ ] `FUNC-SAGA-COMPLETE` — Dish cooked → `CompleteFoodOrderCommand`
-- [ ] `FUNC-SAGA-CANCEL-ON-FAIL` — Cooking failed → `CancelFoodOrderCommand`
-- [ ] `FUNC-DEADLINES` — `DeadlineManager` used for timeout/cleanup
-- [ ] `NFR-RESILIENCE-CANCEL` — Failed/timed-out cooks lead to cancel path (unit-proven)
-- [ ] `TEST-SAGA-CASES` — Happy, failure, deadline paths; empty stub gone
-- [ ] Partial `TEST-EDGE-CASES` (saga-related); `./mvnw test` green
+- [x] `FUNC-SAGA-START` — Created → `CookDishCommand`
+- [x] `FUNC-SAGA-COMPLETE` — Dish cooked → `CompleteFoodOrderCommand`
+- [x] `FUNC-SAGA-CANCEL-ON-FAIL` — Cooking failed → `CancelFoodOrderCommand`
+- [x] `FUNC-DEADLINES` — `DeadlineManager` used for timeout/cleanup (`cooking-timeout`, 15s)
+- [x] `NFR-RESILIENCE-CANCEL` — Failed/timed-out cooks lead to cancel path (unit-proven)
+- [x] `TEST-SAGA-CASES` — Happy, failure, deadline paths; empty stub gone
+- [x] Timeout edge covered under `TEST-SAGA-CASES`; full `TEST-EDGE-CASES` left for Phase 4; `mvn test` green
 
 ---
 
@@ -439,8 +441,8 @@ Duplicate commands, out-of-order kitchen vs deadline races, double-cancel attemp
 
 | Topic | Risk / decision | Guidance |
 |-------|-----------------|----------|
-| **Cooking deadline duration** | Not specified in Requirements | Choose > max `KitchenClient` cook time (`CHICKEN` = 10s) + buffer; document in `docs/` when introduced |
-| **Cancel reason strings** | Timeout vs kitchen failure vs other | Pick clear, tested constants/strings; document; propagate kitchen reason where sensible |
+| **Cooking deadline duration** | Resolved Phase 3 | `"cooking-timeout"`, `Duration.ofSeconds(15)` (> `CHICKEN` 10s + buffer) |
+| **Cancel reason strings** | Resolved Phase 3 | Timeout: `"Cooking timed out"`; kitchen failure: propagate `CookingDishFailedEvent.reason()` |
 | **Deterministic kitchen in tests** | Live client is random + blocking sleep | Mock/stub in unit and e2e; never flake on ~20% failure |
 | **Java version mismatch** | Requirements say Java 17+; `pom.xml` targets **21** | Develop/test on JDK 21; treat 17+ as minimum floor in prose only |
 | **Axon Server for e2e** | UI requires manual “Start standalone node” | Prefer automated test approach; don’t make CI depend on manual UI clicks |

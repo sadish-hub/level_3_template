@@ -147,8 +147,9 @@ docker-compose up -d
 ## Known gaps / ambiguities (treat carefully)
 
 - Requirements say “add tests that you find valuable”; this file **requires** unit + e2e coverage including edge cases — follow the stricter bar here.
-- Exact cooking **deadline duration** and cancel **reason strings** for timeout vs kitchen failure are not fully specified in Requirements — choose clear, tested values and document them in `docs/` if you introduce them.
 - **Invalid aggregate transitions (resolved Phase 1):** complete/cancel when not `CREATED` → `IllegalStateException`; no-prior-create → `AggregateNotFoundException`.
 - **Kitchen failure reason (resolved Phase 2):** `CookingDishFailedEvent.reason` = `KitchenException.getMessage()`; kitchen unit tests use `mockStatic(KitchenClient.class)`.
+- **Cooking deadline / cancel reasons (resolved Phase 3):** deadline name `"cooking-timeout"`, duration **15s**; timeout cancel reason `"Cooking timed out"`; kitchen-failure cancel propagates `CookingDishFailedEvent.reason()`.
+- **Duplicate kitchen outcomes / events after `@EndSaga`:** deferred to Phase 5.
 - No custom REST API or security model is required; do not add them unless requirements change.
 - Live kitchen failure is random; tests must not flaky-assert on that randomness.

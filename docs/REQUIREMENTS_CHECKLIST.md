@@ -4,7 +4,7 @@
 
 **Source:** [`REQUIREMENTS.md`](REQUIREMENTS.md)  
 **Agent agreements:** [`AGENTS.md`](../AGENTS.md) — coding standards, TDD, unit + e2e testing (edge cases), locked surfaces, docs hygiene.  
-**Implementation roadmap:** [`plans/master_plan.md`](plans/master_plan.md) — phased goals, scope, testing focus, and checklist ID mapping. Phase 1: [`plans/phase-1-food-order-aggregate.md`](plans/phase-1-food-order-aggregate.md). Phase 2: [`plans/phase-2-kitchen-service.md`](plans/phase-2-kitchen-service.md).  
+**Implementation roadmap:** [`plans/master_plan.md`](plans/master_plan.md) — phased goals, scope, testing focus, and checklist ID mapping. Phase 1: [`plans/phase-1-food-order-aggregate.md`](plans/phase-1-food-order-aggregate.md). Phase 2: [`plans/phase-2-kitchen-service.md`](plans/phase-2-kitchen-service.md). Phase 3: [`plans/phase-3-food-order-saga.md`](plans/phase-3-food-order-saga.md).  
 **Supporting cues:** Axon playbook links in Requirements (state transitions, sagas, deadlines, aggregate/saga testing); locked command/event contracts under `command/` and `event/`.  
 **Date context:** 2026-11-02 (workspace audit of template stubs).  
 **Convention:** `[x]` = verified present/working in codebase today; `[ ]` = not implemented or only empty scaffold.
@@ -42,10 +42,10 @@
 - [x] **FUNC-COOK-HANDLER** — `KitchenService` handles `CookDishCommand` (calls `KitchenClient.cookDish`, publishes outcome via `EventGateway`). *(Requirements → Level 3; `CookDishCommand`)*
 - [x] **FUNC-COOK-SUCCESS** — Successful cook publishes `DishCookedEvent` (via `EventGateway` + `KitchenClient.cookDish`). *(Requirements → Level 3; events)*
 - [x] **FUNC-COOK-FAILURE** — Kitchen failure publishes `CookingDishFailedEvent` with reason = `KitchenException.getMessage()`. *(Requirements → Level 3; `KitchenClient`)*
-- [ ] **FUNC-SAGA-START** — Saga reacts to `FoodOrderCreatedEvent` and dispatches `CookDishCommand`. *(Requirements → Level 3; Axon Sagas link)*
-- [ ] **FUNC-SAGA-COMPLETE** — Saga reacts to `DishCookedEvent` and dispatches `CompleteFoodOrderCommand`. *(Requirements → Level 3)*
-- [ ] **FUNC-SAGA-CANCEL-ON-FAIL** — Saga reacts to `CookingDishFailedEvent` and dispatches `CancelFoodOrderCommand`. *(Requirements → Level 3)*
-- [ ] **FUNC-DEADLINES** — Saga uses `DeadlineManager` for cooking timeouts / cleanup (DeadlineManager injected; no deadline API used yet; Axon Deadlines linked in Requirements). *(Requirements → Useful resources / Level 3)*
+- [x] **FUNC-SAGA-START** — Saga reacts to `FoodOrderCreatedEvent` and dispatches `CookDishCommand` (also schedules `cooking-timeout`). *(Requirements → Level 3; Axon Sagas link)*
+- [x] **FUNC-SAGA-COMPLETE** — Saga reacts to `DishCookedEvent` and dispatches `CompleteFoodOrderCommand`. *(Requirements → Level 3)*
+- [x] **FUNC-SAGA-CANCEL-ON-FAIL** — Saga reacts to `CookingDishFailedEvent` and dispatches `CancelFoodOrderCommand` with `event.reason()`. *(Requirements → Level 3)*
+- [x] **FUNC-DEADLINES** — Saga schedules `cooking-timeout` for 15s via `DeadlineManager`; cancels on kitchen outcome; timeout cancels order with `"Cooking timed out"`. *(Requirements → Useful resources / Level 3)*
 - [ ] **FUNC-ALL-COMMANDS-EVENTS** — End-to-end flow uses **all** provided commands and events: Create/Cook/Complete/Cancel + Created/DishCooked/CookingFailed/Completed/Cancelled. *(Requirements → Level 3)*
 
 ---
@@ -86,7 +86,7 @@
 
 - [x] **NFR-SIMULATED-LATENCY** — Kitchen cooking times vary by dish (1s–10s) in `KitchenClient`. *(Implied by locked client; Level 3 flow)*
 - [x] **NFR-SIMULATED-FAILURE** — ~20% random kitchen failure rate in `KitchenClient`. *(Implied by locked client)*
-- [ ] **NFR-RESILIENCE-CANCEL** — Failed or timed-out cooks result in cancelled orders (saga + cancel path). *(Requirements → Level 3 + Deadlines link)*
+- [x] **NFR-RESILIENCE-CANCEL** — Failed or timed-out cooks result in cancelled orders (saga + cancel path; unit-proven). *(Requirements → Level 3 + Deadlines link)*
 
 ---
 
@@ -96,7 +96,7 @@
 - [x] **TEST-FIXTURE-SAGA** — `FoodOrderSagaTest` uses Axon `SagaTestFixture` scaffold. *(Requirements → Level 3; Axon testing sagas link)*
 - [ ] **TEST-TDD** — Features and bugfixes follow red → green → refactor (failing test before production code). *(`AGENTS.md` → TDD workflow)*
 - [x] **TEST-AGGREGATE-CASES** — Meaningful aggregate unit tests for create/complete/cancel (and invalid transitions, cancel reasons). *(Requirements → Level 3; `AGENTS.md`)*
-- [ ] **TEST-SAGA-CASES** — Meaningful saga unit tests for happy path, kitchen failure, and deadline/timeout path. *(Requirements → Level 3; `AGENTS.md`)*
+- [x] **TEST-SAGA-CASES** — Meaningful saga unit tests for created→cook+deadline, cooked→complete, kitchen failure→cancel, and timeout→cancel (`FoodOrderSagaTest`). *(Requirements → Level 3; `AGENTS.md`)*
 - [x] **TEST-KITCHEN-SERVICE** — Unit coverage for cook success vs `KitchenException` → corresponding events (`KitchenServiceTest` with `mockStatic(KitchenClient)`). *(Requirements → “tests that you find valuable”; `AGENTS.md`)*
 - [ ] **TEST-E2E** — E2E/integration tests for wired create→cook→complete and create→cook-fail→cancel (deterministic; not flaky on live ~20% failure). *(`AGENTS.md` → Testing expectations)*
 - [ ] **TEST-EDGE-CASES** — Explicit coverage of kitchen failure, deadline/timeout, invalid transitions, and cancel reasons. *(`AGENTS.md`)*
@@ -110,12 +110,12 @@
 
 ---
 
-## Summary counts (as of Phase 2 kitchen)
+## Summary counts (as of Phase 3 saga)
 
 | Status | Count |
 |--------|------:|
-| Checked `[x]` | 29 |
-| Unchecked `[ ]` | 12 |
+| Checked `[x]` | 35 |
+| Unchecked `[ ]` | 6 |
 | **Total items** | **41** |
 
-Primary remaining work: implement `FoodOrderSaga` via TDD; add e2e scenarios covering the full command/event set and edge cases; keep docs synced.
+Primary remaining work: Phase 4 e2e/wiring for the full command/event set; keep `TEST-EDGE-CASES` / `TEST-TDD` / `DOC-SYNC` closed there; duplicate/post-end saga outcomes deferred to Phase 5.
